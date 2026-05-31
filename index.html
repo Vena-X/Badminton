@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Vena-X Badminton</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+[data-theme="dark"]{
+  --bg-body:#0a1628;--bg-filter:brightness(0.32) saturate(1.5);
+  --bg-ov:linear-gradient(135deg,rgba(10,22,40,0.82) 0%,rgba(0,45,100,0.62) 100%);
+  --gbg:rgba(255,255,255,0.09);--gbr:rgba(255,255,255,0.20);--gsh:0 6px 24px rgba(0,0,0,0.30);
+  --tl:#f0f4ff;--td:rgba(240,244,255,0.56);--ts:rgba(240,244,255,0.32);
+  --ticker-bg:linear-gradient(90deg,rgba(0,230,118,0.13),rgba(41,121,255,0.13));
+  --ticker-bd:rgba(0,230,118,0.28);--ticker-txt:#e0f7fa;
+  --modal-bg:linear-gradient(160deg,rgba(14,28,56,0.99),rgba(8,18,38,0.99));
+  --modal-bd:rgba(255,255,255,0.16);
+  --input-bg:rgba(255,255,255,0.09);--input-bd:rgba(255,255,255,0.17);
+  --divider:rgba(255,255,255,0.08);--sep:rgba(255,255,255,0.12);
+  --ptc:.09;--log-bg:rgba(255,255,255,0.05);
+  --wa-bg:linear-gradient(135deg,rgba(37,211,102,0.09),rgba(18,140,126,0.06));
+  --wa-bd:rgba(37,211,102,0.20);
+  --info-bg:linear-gradient(135deg,rgba(41,121,255,0.11),rgba(0,176,255,0.07));
+  --info-bd:rgba(41,121,255,0.25);
+}
+[data-theme="light"]{
+  --bg-body:#d4dce8;--bg-filter:brightness(0.50) saturate(1.1);
+  --bg-ov:linear-gradient(135deg,rgba(205,218,235,0.82) 0%,rgba(175,198,225,0.72) 100%);
+  --gbg:rgba(255,255,255,0.58);--gbr:rgba(80,120,180,0.26);--gsh:0 4px 18px rgba(0,40,100,0.13);
+  --tl:#162040;--td:rgba(22,32,64,0.62);--ts:rgba(22,32,64,0.38);
+  --ticker-bg:linear-gradient(90deg,rgba(0,130,70,0.11),rgba(0,70,180,0.09));
+  --ticker-bd:rgba(0,130,70,0.26);--ticker-txt:#0d1e3a;
+  --modal-bg:linear-gradient(160deg,rgba(228,236,252,0.99),rgba(208,222,246,0.99));
+  --modal-bd:rgba(80,120,200,0.26);
+  --input-bg:rgba(255,255,255,0.72);--input-bd:rgba(60,110,200,0.26);
+  --divider:rgba(40,70,140,0.11);--sep:rgba(40,70,140,0.16);
+  --ptc:.06;--log-bg:rgba(60,100,200,0.06);
+  --wa-bg:linear-gradient(135deg,rgba(0,150,70,0.09),rgba(0,110,80,0.06));
+  --wa-bd:rgba(0,150,70,0.20);
+  --info-bg:linear-gradient(135deg,rgba(20,70,190,0.08),rgba(0,130,210,0.05));
+  --info-bd:rgba(20,70,190,0.20);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{font-family:'Nunito',sans-serif;background:var(--bg-body);color:var(--tl);
+  height:100%;width:100%;overflow:hidden;position:fixed;inset:0;transition:background .3s,color .3s;}
+#app{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;overflow:hidden;}
+#page-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+#bg-layer{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;filter:var(--bg-filter);transition:background-image .7s,filter .4s;}
+#bg-overlay{position:fixed;inset:0;z-index:1;background:var(--bg-ov);transition:background .4s;}
+.ptc{position:fixed;font-size:1.2rem;opacity:var(--ptc);z-index:2;animation:fup linear infinite;pointer-events:none;}
+@keyframes fup{0%{transform:translateY(110vh) rotate(0deg);opacity:0;}10%{opacity:var(--ptc);}90%{opacity:calc(var(--ptc)*0.6);}100%{transform:translateY(-10vh) rotate(360deg);opacity:0;}}
+
+/* LOADING SCREEN */
+#loading-screen{
+  position:fixed;inset:0;z-index:999;
+  background:#0a1628;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  transition:opacity .5s;
+}
+#loading-screen.fade-out{opacity:0;pointer-events:none;}
+.loader-logo{font-size:3rem;animation:pulse 1.2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.18);}}
+.loader-text{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.1em;color:#00e676;}
+.loader-sub{font-size:.75rem;color:rgba(255,255,255,0.45);letter-spacing:.06em;}
+.loader-bar{width:160px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;}
+.loader-bar-inner{height:100%;background:linear-gradient(90deg,#00e676,#2979ff);border-radius:2px;animation:barLoad 1.8s ease-in-out infinite;}
+@keyframes barLoad{0%{width:0;margin-left:0;}50%{width:100%;margin-left:0;}100%{width:0;margin-left:100%;};}
+
+/* TICKER */
+#ticker-wrap{background:var(--ticker-bg);border-bottom:1.5px solid var(--ticker-bd);backdrop-filter:blur(12px);
+  overflow:hidden;height:30px;display:flex;align-items:center;flex-shrink:0;position:relative;z-index:4;}
+.ticker-scroll{display:flex;align-items:center;animation:tick 34s linear infinite;white-space:nowrap;padding-left:20px;}
+.ticker-scroll span{margin-right:50px;font-size:.73rem;font-weight:700;color:var(--ticker-txt);}
+.ticker-scroll span b{color:#e8a200;}
+[data-theme="dark"] .ticker-scroll span b{color:#ffea00;}
+@keyframes tick{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px;gap:8px;
+  flex-shrink:0;position:relative;z-index:4;padding-top:max(10px,env(safe-area-inset-top));}
+.logo{display:flex;align-items:center;gap:9px;}
+#logo-icon-wrap{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+  font-size:1.55rem;box-shadow:0 0 16px rgba(0,200,100,0.35);flex-shrink:0;overflow:hidden;
+  background:linear-gradient(135deg,#00e676,#2979ff);}
+#logo-icon-wrap img{width:100%;height:100%;object-fit:cover;}
+.logo-text h1{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.07em;color:var(--tl);line-height:1;}
+.logo-text p{font-size:.58rem;color:var(--td);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-top:1px;}
+.header-right{display:flex;gap:5px;align-items:center;}
+/* CONNECTION DOT */
+#conn-dot{width:8px;height:8px;border-radius:50%;background:#888;flex-shrink:0;transition:background .3s;
+  box-shadow:0 0 0 0 #888;}
+#conn-dot.online{background:#00e676;box-shadow:0 0 6px #00e676;}
+#conn-dot.offline{background:#ff1744;animation:blink .8s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+
+/* GLASS */
+.glass{background:var(--gbg);border:1.5px solid var(--gbr);border-radius:14px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--gsh);transition:background .3s,border-color .3s;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;border:none;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:.76rem;padding:7px 14px;border-radius:50px;
+  transition:all .14s;letter-spacing:.04em;white-space:nowrap;position:relative;overflow:hidden;
+  text-transform:uppercase;touch-action:manipulation;}
+.btn:active{transform:scale(.94);opacity:.85;}
+.btn-green{background:linear-gradient(135deg,#00e676,#00bfa5);color:#002b14;box-shadow:0 3px 12px rgba(0,230,118,0.36);}
+.btn-red{background:linear-gradient(135deg,#ff1744,#c40024);color:#fff;box-shadow:0 3px 12px rgba(255,23,68,0.36);}
+.btn-blue{background:linear-gradient(135deg,#2979ff,#00b0ff);color:#fff;box-shadow:0 3px 12px rgba(41,121,255,0.36);}
+.btn-yellow{background:linear-gradient(135deg,#f5c400,#e06000);color:#1a0a00;box-shadow:0 3px 12px rgba(240,180,0,0.36);}
+.btn-gray{background:var(--input-bg);color:var(--td);border:1.5px solid var(--input-bd);box-shadow:none;}
+.btn-wa{background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;box-shadow:0 3px 10px rgba(37,211,102,0.30);}
+.btn-icon{padding:6px 10px;font-size:.8rem;}
+.btn-sm{padding:5px 11px;font-size:.69rem;}
+.btn-xs{padding:3px 8px;font-size:.64rem;}
+.btn-full{width:100%;justify-content:center;}
+.btn:disabled{opacity:.5;pointer-events:none;}
+
+/* THEME TOGGLE */
+#theme-toggle{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--gbr);
+  background:var(--gbg);font-size:.95rem;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;touch-action:manipulation;flex-shrink:0;}
+#theme-toggle:active{transform:scale(.9);}
+
+/* NAV TABS */
+#nav-tabs{display:flex;gap:5px;padding:0 14px 10px;flex-shrink:0;overflow-x:auto;
+  position:relative;z-index:4;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+#nav-tabs::-webkit-scrollbar{display:none;}
+.tab-btn{padding:6px 13px;border-radius:50px;border:1.5px solid var(--gbr);background:var(--gbg);
+  color:var(--td);font-weight:700;font-size:.7rem;cursor:pointer;transition:.15s;backdrop-filter:blur(8px);
+  letter-spacing:.04em;text-transform:uppercase;flex-shrink:0;touch-action:manipulation;}
+.tab-btn.active{background:linear-gradient(135deg,#2979ff,#00e676);color:#000;border-color:transparent;
+  box-shadow:0 3px 12px rgba(41,121,255,0.32);}
+
+/* PAGES */
+.page{display:none;padding:0 12px 60px;}
+.page.active{display:block;}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.08em;margin-bottom:9px;
+  color:var(--tl);display:flex;align-items:center;gap:7px;}
+.sec-title::after{content:'';flex:1;height:1.5px;background:linear-gradient(90deg,var(--sep),transparent);}
+
+/* PUBLIK 2-COL */
+.publik-split{display:grid;grid-template-columns:1fr 1.5px 1fr;gap:0;margin-bottom:10px;align-items:start;}
+.publik-sep{background:linear-gradient(to bottom,transparent,var(--sep) 20%,var(--sep) 80%,transparent);width:1.5px;align-self:stretch;}
+.publik-col{padding:0 8px;}
+.col-label{font-family:'Bebas Neue',sans-serif;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--td);margin-bottom:7px;display:flex;align-items:center;gap:5px;}
+.col-label .cl-dot{width:6px;height:6px;border-radius:50%;}
+.presence-col{display:flex;flex-direction:column;gap:6px;}
+.presence-card{padding:8px 9px;}
+.presence-card h3{font-size:.58rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;
+  margin-bottom:5px;display:flex;align-items:center;gap:4px;}
+.count-badge{background:var(--input-bg);border-radius:50px;padding:1px 6px;font-size:.62rem;font-weight:900;margin-left:auto;color:var(--tl);}
+.card-green{border-color:rgba(0,230,118,0.32);}
+.card-green h3{color:#00c060;}
+[data-theme="dark"] .card-green h3{color:#00e676;}
+.card-red{border-color:rgba(255,23,68,0.32);}
+.card-red h3{color:#c03050;}
+[data-theme="dark"] .card-red h3{color:#ff6e87;}
+.card-gray{border-color:rgba(150,160,180,0.22);}
+.card-gray h3{color:var(--td);}
+.member-chip{display:inline-flex;align-items:center;gap:3px;background:var(--log-bg);border:1px solid var(--gbr);
+  border-radius:50px;padding:3px 7px 3px 5px;font-size:.64rem;font-weight:700;margin:1px;color:var(--tl);}
+.chip-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.dot-green{background:#00e676;box-shadow:0 0 5px #00e676;}
+.dot-red{background:#ff1744;box-shadow:0 0 5px #ff1744;}
+.dot-gray{background:#888;}
+.chip-reason{font-size:.58rem;color:var(--td);}
+.kas-mini-col{display:flex;flex-direction:column;gap:6px;}
+.kas-mini-card{padding:8px 9px;}
+.kas-mini-val{font-family:'Bebas Neue',sans-serif;font-size:1rem;line-height:1;color:var(--tl);}
+.kas-mini-lbl{font-size:.55rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.08em;margin-top:2px;}
+.iuran-mini-item{display:flex;align-items:center;gap:4px;font-size:.65rem;font-weight:700;padding:2px 0;color:var(--tl);}
+.iuran-mini-item .im-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+/* INFO & CONTACT */
+.info-box{background:var(--info-bg);border:1.5px solid var(--info-bd);border-radius:13px;padding:11px 13px;margin-bottom:10px;}
+.info-box-header{font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.1em;
+  color:#1456c8;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+[data-theme="dark"] .info-box-header{color:#4da8ff;}
+.info-box-body{font-size:.78rem;font-weight:600;line-height:1.5;color:var(--tl);}
+.info-box-body:empty::before{content:'Tidak ada pengumuman.';color:var(--td);font-style:italic;}
+.wa-contact-box{background:var(--wa-bg);border:1.5px solid var(--wa-bd);border-radius:13px;
+  padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.wa-contact-box .wac-info{flex:1;}
+.wac-name{font-size:.78rem;font-weight:800;color:var(--tl);}
+.wac-num{font-size:.68rem;color:var(--td);margin-top:1px;}
+
+/* MEMBER PAGE */
+.member-panel{max-width:380px;margin:0 auto;}
+.big-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;}
+.big-btn{padding:16px 10px;border-radius:14px;border:none;cursor:pointer;font-family:'Bebas Neue',sans-serif;
+  font-size:1.1rem;letter-spacing:.07em;transition:.18s;display:flex;flex-direction:column;
+  align-items:center;gap:4px;touch-action:manipulation;}
+.big-btn:active{transform:scale(.95);}
+.big-btn .bico{font-size:1.6rem;}
+.big-btn-hadir{background:linear-gradient(135deg,#00e676,#00bfa5);color:#002b14;box-shadow:0 6px 18px rgba(0,230,118,0.40);}
+.big-btn-absen{background:linear-gradient(135deg,#ff1744,#ff6d00);color:#fff;box-shadow:0 6px 18px rgba(255,23,68,0.40);}
+
+/* FORM */
+.form-group{margin-bottom:9px;}
+.form-group label{display:block;font-size:.68rem;font-weight:800;color:var(--td);margin-bottom:4px;
+  text-transform:uppercase;letter-spacing:.07em;}
+.form-control{width:100%;padding:8px 11px;border-radius:10px;background:var(--input-bg);border:1.5px solid var(--input-bd);
+  color:var(--tl);font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:600;outline:none;transition:.13s;}
+.form-control:focus{border-color:#2979ff;background:rgba(41,121,255,0.08);}
+.form-control option{background:#152035;}
+[data-theme="light"] .form-control option{background:#e8eef8;}
+textarea.form-control{resize:vertical;min-height:70px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+
+/* PILLS */
+.status-pill{display:inline-block;padding:2px 8px;border-radius:50px;font-size:.63rem;font-weight:800;}
+.pill-hadir{background:rgba(0,200,90,0.15);color:#00a050;border:1px solid rgba(0,200,90,0.24);}
+[data-theme="dark"] .pill-hadir{color:#00e676;}
+.pill-absen{background:rgba(220,30,60,0.13);color:#c02040;border:1px solid rgba(220,30,60,0.22);}
+[data-theme="dark"] .pill-absen{color:#ff6e87;}
+.pill-belum{background:rgba(140,140,160,0.11);color:var(--td);border:1px solid rgba(140,140,160,0.16);}
+.pill-lunas{background:rgba(0,200,90,0.13);color:#00a050;border:1px solid rgba(0,200,90,0.22);}
+[data-theme="dark"] .pill-lunas{color:#00e676;}
+.pill-blm{background:rgba(200,160,0,0.11);color:#906000;border:1px solid rgba(200,160,0,0.22);}
+[data-theme="dark"] .pill-blm{color:#ffea00;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{text-align:left;padding:7px 9px;font-size:.62rem;font-weight:900;color:var(--td);
+  text-transform:uppercase;letter-spacing:.09em;border-bottom:1.5px solid var(--divider);}
+.tbl td{padding:6px 9px;border-bottom:1px solid var(--divider);font-size:.76rem;vertical-align:middle;color:var(--tl);}
+
+/* KAS */
+.kas-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;}
+.kas-card{padding:11px;text-align:center;}
+.kas-val{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:var(--tl);}
+.kas-lbl{font-size:.58rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.08em;margin-top:1px;}
+.kas-log-item{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:9px;
+  background:var(--log-bg);margin-bottom:4px;font-size:.74rem;}
+.kas-log-item .lico{font-size:.9rem;}
+.kas-log-item .ldesc{flex:1;font-weight:600;color:var(--tl);}
+.lamt{font-weight:900;}
+.log-in .lamt{color:#00a050;}
+[data-theme="dark"] .log-in .lamt{color:#00e676;}
+.log-out .lamt{color:#c02040;}
+[data-theme="dark"] .log-out .lamt{color:#ff6e87;}
+.ldate{font-size:.6rem;color:var(--td);}
+
+/* BG PREVIEW */
+.bg-preview{width:100%;height:80px;border-radius:10px;border:2px dashed var(--input-bd);
+  background:var(--log-bg);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:7px;}
+.bg-preview img{width:100%;height:100%;object-fit:cover;}
+
+/* WA PANEL */
+.wa-panel{background:var(--wa-bg);border:1.5px solid var(--wa-bd);border-radius:13px;padding:10px 12px;margin-bottom:12px;}
+.wa-panel h3{font-size:.66rem;font-weight:900;color:#107040;text-transform:uppercase;letter-spacing:.09em;margin-bottom:7px;}
+[data-theme="dark"] .wa-panel h3{color:#25d366;}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--divider);margin:11px 0;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);
+  display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:.22s;padding:0;}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal-box{background:var(--modal-bg);border:1.5px solid var(--modal-bd);border-radius:20px 20px 0 0;
+  padding:20px 16px 34px;width:100%;max-width:500px;box-shadow:0 -8px 36px rgba(0,0,0,0.45);
+  transform:translateY(100%);transition:.26s cubic-bezier(.34,1.3,.64,1);max-height:90vh;overflow-y:auto;}
+.modal-overlay.show .modal-box{transform:translateY(0);}
+.modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
+.modal-top h2{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:.06em;color:var(--tl);}
+.modal-close{background:none;border:none;color:var(--td);font-size:1.1rem;cursor:pointer;padding:4px;}
+
+/* TOAST */
+#toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(14px);
+  background:linear-gradient(135deg,#00e676,#00bfa5);color:#002b14;padding:8px 18px;border-radius:50px;
+  font-weight:800;font-size:.78rem;z-index:700;opacity:0;transition:.24s;pointer-events:none;
+  white-space:nowrap;box-shadow:0 6px 18px rgba(0,230,118,0.36);max-width:90vw;text-align:center;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+#bg-file-input,#logo-file-input{display:none;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:var(--sep);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="loader-logo">🏸</div>
+  <div class="loader-text">VENA-X BADMINTON</div>
+  <div class="loader-sub">Menghubungkan ke Firebase...</div>
+  <div class="loader-bar"><div class="loader-bar-inner"></div></div>
+</div>
+
+<div id="bg-layer"></div>
+<div id="bg-overlay"></div>
+<div class="ptc" style="left:7%;animation-duration:15s;animation-delay:0s">🏸</div>
+<div class="ptc" style="left:22%;animation-duration:20s;animation-delay:3s">🏸</div>
+<div class="ptc" style="left:50%;animation-duration:13s;animation-delay:1.5s">🏸</div>
+<div class="ptc" style="left:72%;animation-duration:18s;animation-delay:5s">🏸</div>
+<div class="ptc" style="left:87%;animation-duration:14s;animation-delay:2s">🏸</div>
+
+<div id="app">
+<!-- TICKER -->
+<div id="ticker-wrap">
+  <div class="ticker-scroll" id="ticker-inner">
+    <span>🗓️ <b id="ts-day">—</b></span>
+    <span>📍 <b id="ts-loc">—</b></span>
+    <span>💰 Saldo: <b id="ts1">Rp 0</b></span>
+    <span>🏸 Selamat datang di <b>Vena-X Badminton!</b></span>
+    <span>🗓️ <b id="ts-day2">—</b></span>
+    <span>📍 <b id="ts-loc2">—</b></span>
+    <span>💰 Saldo: <b id="ts2">Rp 0</b></span>
+    <span>🏸 Selamat datang di <b>Vena-X Badminton!</b></span>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div id="logo-icon-wrap">🏸</div>
+    <div class="logo-text">
+      <h1 id="club-name-h">VENA-X BADMINTON</h1>
+      <p id="club-tag-p">Digital Dashboard · Real-Time · v1.4</p>
+    </div>
+  </div>
+  <div class="header-right" id="header-right">
+    <div id="conn-dot" title="Status koneksi"></div>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<div id="nav-tabs">
+  <button class="tab-btn active" onclick="showPage('publik')" id="tabt-publik" style="display:none">🏠 Live Board</button>
+  <button class="tab-btn" onclick="showPage('member')" id="tabt-member" style="display:none">👤 Dashboard</button>
+  <button class="tab-btn" onclick="showPage('anggota')" id="tabt-anggota" style="display:none">👥 Anggota</button>
+  <button class="tab-btn" onclick="showPage('kas')" id="tabt-kas" style="display:none">💰 Kas &amp; Iuran</button>
+</div>
+
+<div id="page-area">
+
+<!-- PAGE PUBLIK -->
+<div class="page active" id="page-publik">
+  <div class="info-box" id="info-box-display">
+    <div class="info-box-header">📢 PENGUMUMAN KLUB</div>
+    <div class="info-box-body" id="info-box-text"></div>
+  </div>
+  <div class="wa-contact-box" id="wa-contact-display">
+    <span style="font-size:1.6rem;">💬</span>
+    <div class="wac-info">
+      <div class="wac-name" id="wac-name-display">Admin Klub</div>
+      <div class="wac-num" id="wac-num-display">—</div>
+    </div>
+    <a id="wac-btn" href="#" target="_blank" class="btn btn-wa btn-sm" style="display:none">💬 WA Admin</a>
+  </div>
+  <div class="publik-split">
+    <div class="publik-col">
+      <div class="col-label"><span class="cl-dot" style="background:#00e676;box-shadow:0 0 5px #00e676;"></span>DAFTAR ABSENSI</div>
+      <div class="presence-col">
+        <div class="glass presence-card card-green">
+          <h3>✅ HADIR <span class="count-badge" id="cnt-hadir">0</span></h3>
+          <div id="list-hadir"><span style="color:var(--td);font-size:.63rem;">—</span></div>
+        </div>
+        <div class="glass presence-card card-red">
+          <h3>❌ TIDAK HADIR <span class="count-badge" id="cnt-absen">0</span></h3>
+          <div id="list-absen"><span style="color:var(--td);font-size:.63rem;">—</span></div>
+        </div>
+        <div class="glass presence-card card-gray">
+          <h3>❓ BELUM ABSENSI <span class="count-badge" id="cnt-belum">0</span></h3>
+          <div id="list-belum"><span style="color:var(--td);font-size:.63rem;">—</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="publik-sep"></div>
+    <div class="publik-col">
+      <div class="col-label"><span class="cl-dot" style="background:#2979ff;box-shadow:0 0 5px #2979ff;"></span>LAPORAN KAS &amp; IURAN</div>
+      <div class="kas-mini-col">
+        <div class="glass kas-mini-card">
+          <div class="kas-mini-val" id="pub-saldo" style="color:#00a050">Rp 0</div>
+          <div class="kas-mini-lbl">💰 Saldo Kas</div>
+        </div>
+        <div class="glass kas-mini-card">
+          <div class="kas-mini-val" id="pub-in" style="color:#2979ff">Rp 0</div>
+          <div class="kas-mini-lbl">📥 Total Masuk</div>
+        </div>
+        <div class="glass kas-mini-card">
+          <div class="kas-mini-val" id="pub-out" style="color:#c02040">Rp 0</div>
+          <div class="kas-mini-lbl">📤 Total Keluar</div>
+        </div>
+        <div class="glass kas-mini-card" style="padding:9px 10px;">
+          <div style="font-size:.6rem;font-weight:900;color:#906000;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;">📊 STATUS IURAN</div>
+          <div id="iuran-mini-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE MEMBER -->
+<div class="page" id="page-member">
+  <div class="member-panel">
+    <div class="glass" style="padding:14px;margin-bottom:10px;">
+      <div class="sec-title">👤 Halo, <span id="member-name-d" style="color:#00a050">—</span></div>
+      <div id="member-status-d" style="margin-bottom:10px;"></div>
+      <div class="big-btn-row">
+        <button class="big-btn big-btn-hadir" onclick="setPresence('hadir')"><span class="bico">✅</span>SAYA HADIR</button>
+        <button class="big-btn big-btn-absen" onclick="openAbsenModal()"><span class="bico">❌</span>SAYA ABSEN</button>
+      </div>
+    </div>
+    <div class="glass" style="padding:14px;">
+      <div class="sec-title">🔐 Ganti Password</div>
+      <div class="form-group"><label>Password Baru</label><input type="password" class="form-control" id="new-pass" placeholder="Min. 6 karakter"></div>
+      <div class="form-group"><label>Konfirmasi</label><input type="password" class="form-control" id="confirm-pass" placeholder="Ulangi password baru"></div>
+      <button class="btn btn-blue btn-full" onclick="changePassword()">💾 Simpan Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE ANGGOTA -->
+<div class="page" id="page-anggota">
+  <div class="wa-panel">
+    <h3>📲 Broadcast Absensi</h3>
+    <button class="btn btn-wa btn-sm" onclick="sendWAAbsensi()">📋 Rekap Absensi → Grup WA</button>
+    <p style="font-size:.64rem;color:var(--td);margin-top:5px;">WhatsApp terbuka otomatis — pilih grup lalu kirim.</p>
+  </div>
+  <div class="sec-title">👥 Data Anggota</div>
+  <div class="glass" style="padding:2px 0;overflow-x:auto;margin-bottom:12px;">
+    <table class="tbl">
+      <thead><tr><th>Nama</th><th>Presensi</th><th>Iuran</th><th>WA</th><th>Aksi</th></tr></thead>
+      <tbody id="ang-tbody"></tbody>
+    </table>
+  </div>
+  <div class="sec-title">➕ Tambah Anggota</div>
+  <div class="glass" style="padding:13px;margin-bottom:12px;">
+    <div class="row2">
+      <div class="form-group"><label>Nama Lengkap</label><input type="text" class="form-control" id="nm-name" placeholder="Nama anggota"></div>
+      <div class="form-group"><label>No. WA (62xxx)</label><input type="text" class="form-control" id="nm-wa" placeholder="628xxxxxxxxx"></div>
+    </div>
+    <button class="btn btn-green" onclick="addMember()">➕ Tambah Anggota</button>
+  </div>
+</div>
+
+<!-- PAGE KAS -->
+<div class="page" id="page-kas">
+  <div class="wa-panel">
+    <h3>📲 Broadcast Laporan Iuran</h3>
+    <button class="btn btn-wa btn-sm" onclick="sendWAIuran()">💰 Laporan Iuran → Grup WA</button>
+    <p style="font-size:.64rem;color:var(--td);margin-top:5px;">Laporan kas + status iuran siap dikirim ke grup.</p>
+  </div>
+  <div class="sec-title">💰 Ringkasan Kas</div>
+  <div class="kas-grid3">
+    <div class="glass kas-card"><div class="kas-val" id="k-saldo" style="color:#00a050">Rp 0</div><div class="kas-lbl">💰 Saldo</div></div>
+    <div class="glass kas-card"><div class="kas-val" id="k-in" style="color:#2979ff">Rp 0</div><div class="kas-lbl">📥 Masuk</div></div>
+    <div class="glass kas-card"><div class="kas-val" id="k-out" style="color:#c02040">Rp 0</div><div class="kas-lbl">📤 Keluar</div></div>
+  </div>
+  <div class="sec-title">👥 Status Iuran</div>
+  <div class="glass" style="padding:2px 0;overflow-x:auto;margin-bottom:12px;">
+    <table class="tbl">
+      <thead><tr><th>Nama</th><th>Status</th><th>Presensi</th><th>WA</th></tr></thead>
+      <tbody id="iuran-tbody"></tbody>
+    </table>
+  </div>
+  <div class="sec-title">📝 Input Transaksi</div>
+  <div class="glass" style="padding:13px;margin-bottom:12px;">
+    <div class="row2">
+      <div class="form-group"><label>Jenis</label>
+        <select class="form-control" id="kas-type">
+          <option value="in">💚 Uang Masuk</option>
+          <option value="out">🔴 Uang Keluar</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Nominal (Rp)</label><input type="number" class="form-control" id="kas-amount" placeholder="50000"></div>
+    </div>
+    <div class="form-group"><label>Keterangan</label><input type="text" class="form-control" id="kas-desc" placeholder="cth: Iuran / Beli kok 2 slop"></div>
+    <button class="btn btn-yellow" onclick="addKas()">➕ Catat Transaksi</button>
+  </div>
+  <div class="sec-title">📋 Riwayat Kas</div>
+  <div id="kas-log-wrap" style="max-height:200px;overflow-y:auto;margin-bottom:14px;"></div>
+</div>
+
+</div><!-- /page-area -->
+<div style="text-align:center;padding:6px;font-size:.56rem;color:var(--ts);letter-spacing:.06em;flex-shrink:0;">
+  ©2026 <b>SRISP | Vena-X Badminton</b> v 1.4 &nbsp;·&nbsp; <span id="sync-status">⏳ Memuat...</span>
+</div>
+</div><!-- /app -->
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-login">
+  <div class="modal-box">
+    <div class="modal-top"><h2>🔐 Login</h2><button class="modal-close" onclick="closeModal('modal-login')">✕</button></div>
+    <div class="form-group"><label>Pilih Nama</label>
+      <select class="form-control" id="login-name"><option value="">— Pilih nama kamu —</option></select>
+    </div>
+    <div class="form-group"><label>Password</label><input type="password" class="form-control" id="login-pass" placeholder="Password"></div>
+    <button class="btn btn-green btn-full" onclick="doLogin()" style="margin-top:4px;">🚀 Masuk</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-absen">
+  <div class="modal-box">
+    <div class="modal-top"><h2>❌ Konfirmasi Absen</h2><button class="modal-close" onclick="closeModal('modal-absen')">✕</button></div>
+    <div class="form-group"><label>Alasan Tidak Hadir</label><input type="text" class="form-control" id="absen-reason" placeholder="cth: Sakit, ada acara…"></div>
+    <button class="btn btn-red btn-full" onclick="setPresence('absen')" style="margin-top:4px;">✅ Konfirmasi Absen</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal-box">
+    <div class="modal-top"><h2>✏️ Edit Anggota</h2><button class="modal-close" onclick="closeModal('modal-edit')">✕</button></div>
+    <input type="hidden" id="edit-id">
+    <div class="form-group"><label>Nama Lengkap</label><input type="text" class="form-control" id="edit-name"></div>
+    <div class="form-group"><label>Nomor WA (62xxx)</label><input type="text" class="form-control" id="edit-wa"></div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:7px;color:var(--tl);font-size:.8rem;font-weight:700;text-transform:none;letter-spacing:0;">
+        <input type="checkbox" id="edit-reset-pw" style="width:15px;height:15px;"> Reset password ke 123456
+      </label>
+    </div>
+    <button class="btn btn-blue btn-full" onclick="saveEdit()" style="margin-top:4px;">💾 Simpan Perubahan</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-delpass">
+  <div class="modal-box">
+    <div class="modal-top"><h2>🔒 Konfirmasi Hapus</h2><button class="modal-close" onclick="closeModal('modal-delpass')">✕</button></div>
+    <p style="font-size:.78rem;color:var(--td);margin-bottom:11px;">Masukkan password admin untuk menghapus anggota ini.</p>
+    <input type="hidden" id="del-target-id">
+    <div class="form-group"><label>Password Admin</label><input type="password" class="form-control" id="delpass-input" placeholder="Password admin"></div>
+    <button class="btn btn-red btn-full" onclick="confirmDelete()" style="margin-top:4px;">🗑️ Hapus Anggota</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-settings">
+  <div class="modal-box">
+    <div class="modal-top"><h2>⚙️ Konfigurasi</h2><button class="modal-close" onclick="closeModal('modal-settings')">✕</button></div>
+
+    <div class="sec-title" style="font-size:.9rem;">📢 Pengumuman Publik</div>
+    <div class="glass" style="padding:12px;margin-bottom:12px;">
+      <div class="form-group"><label>Isi Pengumuman</label><textarea class="form-control" id="cfg-info" placeholder="Tulis pengumuman / info untuk ditampilkan di Live Board..."></textarea></div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;">
+        <button class="btn btn-blue btn-sm" onclick="saveInfoBox()">💾 Simpan &amp; Tampilkan</button>
+        <button class="btn btn-wa btn-sm" onclick="sendWAInfo()">📲 Kirim ke Grup WA</button>
+      </div>
+    </div>
+
+    <div class="sec-title" style="font-size:.9rem;">💬 Kontak WhatsApp Admin</div>
+    <div class="glass" style="padding:12px;margin-bottom:12px;">
+      <div class="row2">
+        <div class="form-group"><label>Nama Admin</label><input type="text" class="form-control" id="cfg-admin-name" placeholder="Nama Admin"></div>
+        <div class="form-group"><label>No. WA (62xxx)</label><input type="text" class="form-control" id="cfg-admin-wa" placeholder="628xxxxxxxxx"></div>
+      </div>
+      <button class="btn btn-green btn-sm" onclick="saveAdminContact()">💾 Simpan Kontak</button>
+    </div>
+
+    <div class="sec-title" style="font-size:.9rem;">🔄 Kontrol Presensi</div>
+    <div class="glass" style="padding:12px;margin-bottom:12px;">
+      <p style="font-size:.76rem;color:var(--td);margin-bottom:8px;">Reset semua status presensi ke "Belum Absensi" setelah sesi mabar selesai.</p>
+      <button class="btn btn-red btn-sm" onclick="resetPresence()">🔄 Reset Presensi Mingguan</button>
+    </div>
+
+    <div class="sec-title" style="font-size:.9rem;">🎨 Tampilan Aplikasi</div>
+    <div class="glass" style="padding:12px;margin-bottom:12px;">
+      <div class="row2" style="margin-bottom:8px;">
+        <div class="form-group"><label>Nama Klub</label><input type="text" class="form-control" id="cfg-clubname" placeholder="Vena-X Badminton"></div>
+        <div class="form-group"><label>Tagline</label><input type="text" class="form-control" id="cfg-tagline" placeholder="Digital Dashboard..."></div>
+      </div>
+      <button class="btn btn-blue btn-sm" onclick="saveClubInfo()" style="margin-bottom:10px;">💾 Simpan Info Klub</button>
+      <div class="divider"></div>
+      <div class="form-group">
+        <label>Logo Klub</label>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+          <div id="logo-prev" style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#00e676,#2979ff);display:flex;align-items:center;justify-content:center;font-size:1.4rem;overflow:hidden;flex-shrink:0;">🏸</div>
+          <button class="btn btn-gray btn-sm" onclick="document.getElementById('logo-file-input').click()">📁 Upload Logo</button>
+          <button class="btn btn-gray btn-sm" onclick="resetLogo()">↩ Reset</button>
+          <input type="file" id="logo-file-input" accept="image/*" onchange="handleLogoUpload(event)">
+        </div>
+      </div>
+      <div class="divider"></div>
+      <label style="display:block;font-size:.68rem;font-weight:800;color:var(--td);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Background</label>
+      <div class="bg-preview" id="bg-prev-box">
+        <img id="bg-prev-img" src="" alt="" style="display:none;">
+        <span id="bg-prev-ph" style="color:var(--td);font-size:.72rem;">Preview background</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px;">
+        <button class="btn btn-blue btn-sm" onclick="document.getElementById('bg-file-input').click()">📁 Upload BG</button>
+        <input type="file" id="bg-file-input" accept="image/*" onchange="handleBgUpload(event)">
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;">
+        <button class="btn btn-gray btn-xs" onclick="setBgPreset('https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=1600&q=80')">🏸 GOR</button>
+        <button class="btn btn-gray btn-xs" onclick="setBgPreset('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1600&q=80')">🏟️ Arena</button>
+        <button class="btn btn-gray btn-xs" onclick="setBgPreset('https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1600&q=80')">🌄 Outdoor</button>
+        <button class="btn btn-gray btn-xs" onclick="setBgPreset('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80')">💪 Gym</button>
+      </div>
+    </div>
+
+    <div class="sec-title" style="font-size:.9rem;">📅 Jadwal &amp; Ticker</div>
+    <div class="glass" style="padding:12px;margin-bottom:12px;">
+      <div class="row2">
+        <div class="form-group"><label>Hari</label><input type="text" class="form-control" id="cfg-day" placeholder="Sabtu &amp; Minggu"></div>
+        <div class="form-group"><label>Waktu</label><input type="text" class="form-control" id="cfg-time" placeholder="07.00–10.00"></div>
+      </div>
+      <div class="row2">
+        <div class="form-group"><label>Venue</label><input type="text" class="form-control" id="cfg-venue" placeholder="GOR Maju Jaya"></div>
+        <div class="form-group"><label>Lapangan</label><input type="text" class="form-control" id="cfg-courts" placeholder="Lap. 2 &amp; 3"></div>
+      </div>
+      <button class="btn btn-green btn-sm" onclick="saveSchedule()">💾 Simpan Jadwal</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════
+     FIREBASE v12 MODULE SCRIPT
+══════════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import {
+  getFirestore, doc, collection, getDoc, getDocs, setDoc, updateDoc, deleteDoc,
+  onSnapshot, serverTimestamp, writeBatch, query, orderBy, addDoc
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+// ── CONFIG ──
+const firebaseConfig = {
+  apiKey: "AIzaSyB3EoFbydHuNSEdTO4RfKfW3s_K8kNrkh8",
+  authDomain: "vena-badminton.firebaseapp.com",
+  projectId: "vena-badminton",
+  storageBucket: "vena-badminton.firebasestorage.app",
+  messagingSenderId: "209919289652",
+  appId: "1:209919289652:web:e482056039dc3ee3a69d61"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── HELPERS ──
+function hash(s){let h=0;for(let c of String(s)){h=(h<<5)-h+c.charCodeAt(0)|0;}return'h'+Math.abs(h).toString(16);}
+const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID');
+
+// ── LOCAL STATE (mirror of Firestore) ──
+let state = {
+  members: [],     // [{id,name,wa,password,presence,reason,lunas}]
+  kas: { saldo:0, totalIn:0, totalOut:0 },
+  kasLog: [],      // [{id,type,desc,amount,date,ts}]
+  settings: {
+    club: { name:'VENA-X BADMINTON', tagline:'Digital Dashboard · Real-Time · v1.4' },
+    schedule: { day:'Sabtu & Minggu', time:'07.00–10.00 WIB', venue:'GOR Serbaguna Maju Jaya', courts:'Lapangan 2 & 3' },
+    bgUrl: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=1600&q=80',
+    logoUrl: '',
+    info: '',
+    adminContact: { name:'Admin Klub', wa:'' },
+  },
+};
+let currentUser = null;
+let unsubscribers = [];
+
+// ── CONNECTION STATUS ──
+function setConnStatus(online){
+  const d = document.getElementById('conn-dot');
+  if(!d) return;
+  d.className = online ? 'online' : 'offline';
+  d.title = online ? 'Terhubung ke Firebase' : 'Tidak terhubung';
+  const s = document.getElementById('sync-status');
+  if(s) s.textContent = online ? '🟢 Real-Time' : '🔴 Offline';
+}
+
+// ── THEME ──
+function initTheme(){
+  try{const saved=localStorage.getItem('vx-theme')||'dark';document.documentElement.setAttribute('data-theme',saved);}catch(e){}
+}
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  try{localStorage.setItem('vx-theme',t);}catch(e){}
+  const tb=document.getElementById('theme-toggle');if(tb)tb.textContent=t==='dark'?'☀️':'🌙';
+}
+function toggleTheme(){setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');}
+window.toggleTheme = toggleTheme;
+
+// ── LOADING SCREEN ──
+function hideLoading(){
+  const ls=document.getElementById('loading-screen');
+  if(ls){ls.classList.add('fade-out');setTimeout(()=>ls.style.display='none',550);}
+}
+
+// ══════════════════════════════
+//  FIRESTORE REALTIME LISTENERS
+// ══════════════════════════════
+function startListeners(){
+  // 1. Members collection — real-time
+  const unsubMembers = onSnapshot(
+    collection(db,'members'),
+    snap => {
+      state.members = snap.docs.map(d=>({id:d.id,...d.data()}));
+      state.members.sort((a,b)=>a.name.localeCompare(b.name,'id'));
+      renderPublic();
+      if(document.getElementById('page-anggota').classList.contains('active')) renderAnggota();
+      if(document.getElementById('page-kas').classList.contains('active')) renderKasPage();
+      populateLogin();
+      setConnStatus(true);
+    },
+    err => { console.error('members listener:', err); setConnStatus(false); }
+  );
+  unsubscribers.push(unsubMembers);
+
+  // 2. Kas summary doc
+  const unsubKas = onSnapshot(
+    doc(db,'kas','summary'),
+    snap => {
+      if(snap.exists()){
+        const d=snap.data();
+        state.kas = { saldo:d.saldo||0, totalIn:d.totalIn||0, totalOut:d.totalOut||0 };
+        renderPublic();
+        if(document.getElementById('page-kas').classList.contains('active')) renderKasPage();
+      }
+    }
+  );
+  unsubscribers.push(unsubKas);
+
+  // 3. Kas log collection
+  const unsubLog = onSnapshot(
+    query(collection(db,'kasLog'), orderBy('ts','desc')),
+    snap => {
+      state.kasLog = snap.docs.map(d=>({id:d.id,...d.data()}));
+      if(document.getElementById('page-kas').classList.contains('active')) renderKasPage();
+    },
+    err => console.error('kasLog:', err)
+  );
+  unsubscribers.push(unsubLog);
+
+  // 4. Settings doc
+  const unsubSettings = onSnapshot(
+    doc(db,'settings','main'),
+    snap => {
+      if(snap.exists()){
+        const d=snap.data();
+        if(d.club)    state.settings.club    = d.club;
+        if(d.schedule)state.settings.schedule= d.schedule;
+        if(d.bgUrl)   state.settings.bgUrl   = d.bgUrl;
+        if(d.logoUrl!==undefined) state.settings.logoUrl = d.logoUrl;
+        if(d.info!==undefined)    state.settings.info    = d.info;
+        if(d.adminContact) state.settings.adminContact = d.adminContact;
+        applySettings();
+      }
+    }
+  );
+  unsubscribers.push(unsubSettings);
+}
+
+function applySettings(){
+  const s = state.settings;
+  document.getElementById('club-name-h').textContent = s.club.name;
+  document.getElementById('club-tag-p').textContent  = s.club.tagline;
+  applyBgDOM(s.bgUrl);
+  applyLogoDOM(s.logoUrl);
+  updateTicker();
+  renderInfoBox();
+  renderAdminContact();
+}
+
+// ══════════════════════════════
+//  FIRESTORE SEED (first run)
+// ══════════════════════════════
+async function seedIfEmpty(){
+  // Check if members collection has any docs
+  const snap = await getDocs(collection(db,'members'));
+  if(!snap.empty) return; // already seeded
+
+  toast('🌱 Inisialisasi data awal ke Firebase...','#2979ff');
+  const batch = writeBatch(db);
+
+  const sampleMembers = [
+    {name:'Andi Prasetyo',  wa:'6281234567890',password:hash('123456'),presence:'belum',reason:'',lunas:false},
+    {name:'Budi Santoso',   wa:'6289876543210',password:hash('123456'),presence:'belum',reason:'',lunas:false},
+    {name:'Candra Wijaya',  wa:'6281111222333',password:hash('123456'),presence:'belum',reason:'',lunas:false},
+    {name:'Diana Putri',    wa:'6282222333444',password:hash('123456'),presence:'belum',reason:'',lunas:false},
+    {name:'Eko Firmansyah', wa:'6283333444555',password:hash('123456'),presence:'belum',reason:'',lunas:false},
+    {name:'Fitria Sari',    wa:'6284444555666',password:hash('123456'),presence:'belum',reason:'',lunas:false},
+  ];
+  sampleMembers.forEach(m=>{
+    batch.set(doc(collection(db,'members')), m);
+  });
+
+  // kas summary
+  batch.set(doc(db,'kas','summary'), {saldo:0, totalIn:0, totalOut:0});
+
+  // settings
+  batch.set(doc(db,'settings','main'), {
+    club:     { name:'VENA-X BADMINTON', tagline:'Digital Dashboard · Real-Time · v1.4' },
+    schedule: { day:'Sabtu & Minggu', time:'07.00–10.00 WIB', venue:'GOR Serbaguna Maju Jaya', courts:'Lapangan 2 & 3' },
+    bgUrl:    'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=1600&q=80',
+    logoUrl:  '',
+    info:     'Selamat datang di Vena-X Badminton Club! Mabar rutin tiap Sabtu & Minggu. Harap konfirmasi kehadiran sebelum hari H. Salam shuttlecock! 🏸',
+    adminContact: { name:'Admin Klub', wa:'' },
+  });
+
+  await batch.commit();
+  toast('✅ Data awal berhasil disimpan!');
+}
+
+// ══════════════════════════════
+//  INIT
+// ══════════════════════════════
+initTheme();
+document.addEventListener('DOMContentLoaded', async ()=>{
+  renderHeader();
+  try {
+    await seedIfEmpty();
+    startListeners();
+    setTimeout(hideLoading, 800);
+  } catch(e) {
+    console.error('Firebase init error:', e);
+    hideLoading();
+    setConnStatus(false);
+    toast('⚠️ Gagal terhubung ke Firebase: '+e.message,'#ff1744');
+  }
+});
+
+// ══════════════════════════════
+//  BG & LOGO (DOM only, no Firestore)
+// ══════════════════════════════
+function applyBgDOM(url){
+  if(!url) return;
+  document.getElementById('bg-layer').style.backgroundImage=`url('${url}')`;
+  const img=document.getElementById('bg-prev-img'),ph=document.getElementById('bg-prev-ph');
+  if(img){img.src=url;img.style.display='block';if(ph)ph.style.display='none';}
+}
+function applyLogoDOM(url){
+  const w=document.getElementById('logo-icon-wrap'),p=document.getElementById('logo-prev');
+  const t=url?`<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`:'🏸';
+  if(w)w.innerHTML=t;if(p)p.innerHTML=t;
+}
+async function saveSettingsField(field, value){
+  await setDoc(doc(db,'settings','main'), {[field]:value}, {merge:true});
+}
+window.setBgPreset = async url=>{
+  state.settings.bgUrl=url; applyBgDOM(url);
+  await saveSettingsField('bgUrl', url); toast('🎨 Background diubah!');
+};
+window.handleBgUpload = e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=async ev=>{
+    // Store as data URL (small images only — for large use Firebase Storage)
+    const url=ev.target.result;
+    if(url.length > 900000){ toast('⚠️ Gambar terlalu besar! Gunakan gambar < 700KB','#ff1744'); return; }
+    state.settings.bgUrl=url; applyBgDOM(url);
+    await saveSettingsField('bgUrl',url); toast('🖼️ Background diupload!');
+  };
+  r.readAsDataURL(f); e.target.value='';
+};
+window.handleLogoUpload = e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=async ev=>{
+    const url=ev.target.result;
+    if(url.length > 200000){ toast('⚠️ Logo terlalu besar! Gunakan < 150KB','#ff1744'); return; }
+    state.settings.logoUrl=url; applyLogoDOM(url);
+    await saveSettingsField('logoUrl',url); toast('🖼️ Logo diubah!');
+  };
+  r.readAsDataURL(f); e.target.value='';
+};
+window.resetLogo = async ()=>{
+  state.settings.logoUrl=''; applyLogoDOM('');
+  await saveSettingsField('logoUrl',''); toast('↩ Logo direset');
+};
+
+// ══════════════════════════════
+//  TICKER
+// ══════════════════════════════
+function updateTicker(){
+  const sc = state.settings.schedule;
+  const s = fmt(state.kas.saldo);
+  const d = `${sc.day}, ${sc.time}`;
+  const l = `${sc.venue} — ${sc.courts}`;
+  ['ts1','ts2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=s;});
+  ['ts-day','ts-day2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=d;});
+  ['ts-loc','ts-loc2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=l;});
+}
+
+// ══════════════════════════════
+//  INFO BOX
+// ══════════════════════════════
+function renderInfoBox(){
+  const el=document.getElementById('info-box-text');
+  if(el) el.textContent=state.settings.info||'';
+  const inp=document.getElementById('cfg-info');
+  if(inp) inp.value=state.settings.info||'';
+}
+window.saveInfoBox = async ()=>{
+  const txt=document.getElementById('cfg-info').value.trim();
+  state.settings.info=txt;
+  await saveSettingsField('info',txt);
+  renderInfoBox(); toast('📢 Pengumuman disimpan!');
+};
+window.sendWAInfo = ()=>{
+  const today=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const msg=`📢 *PENGUMUMAN ${state.settings.club.name}*\n📅 ${today}\n━━━━━━━━━━━━━━━━━━\n${state.settings.info||'(kosong)'}\n━━━━━━━━━━━━━━━━━━\n_©2026 SRISP | Vena-X Badminton v1.4_ 🏸`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+};
+
+// ══════════════════════════════
+//  ADMIN CONTACT
+// ══════════════════════════════
+function renderAdminContact(){
+  const ac = state.settings.adminContact;
+  const nd=document.getElementById('wac-name-display');
+  const num=document.getElementById('wac-num-display');
+  const btn=document.getElementById('wac-btn');
+  if(nd) nd.textContent=ac.name||'Admin Klub';
+  if(num) num.textContent=ac.wa?`WA: ${ac.wa}`:'Nomor WA belum diisi';
+  if(btn){
+    if(ac.wa){btn.href=`https://wa.me/${ac.wa}?text=${encodeURIComponent('Halo Admin Vena-X Badminton! 👋')}`;btn.style.display='';}
+    else btn.style.display='none';
+  }
+  const an=document.getElementById('cfg-admin-name');
+  const aw=document.getElementById('cfg-admin-wa');
+  if(an) an.value=ac.name||'';
+  if(aw) aw.value=ac.wa||'';
+}
+window.saveAdminContact = async ()=>{
+  const name=document.getElementById('cfg-admin-name').value.trim()||'Admin Klub';
+  const wa=document.getElementById('cfg-admin-wa').value.trim();
+  state.settings.adminContact={name,wa};
+  await saveSettingsField('adminContact',{name,wa});
+  renderAdminContact(); toast('💬 Kontak Admin disimpan!');
+};
+
+// ══════════════════════════════
+//  HEADER
+// ══════════════════════════════
+function renderHeader(){
+  const el=document.getElementById('header-right');
+  if(!el) return;
+  const curTheme=document.documentElement.getAttribute('data-theme')||'dark';
+  const themeIcon=curTheme==='dark'?'☀️':'🌙';
+  const themeBtn=`<button id="theme-toggle" onclick="toggleTheme()" style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--gbr);background:var(--gbg);font-size:.95rem;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;flex-shrink:0;">${themeIcon}</button>`;
+  const connDot=`<div id="conn-dot" title="Status koneksi" style="width:8px;height:8px;border-radius:50%;background:#888;flex-shrink:0;"></div>`;
+  const adminTabs=['tabt-anggota','tabt-kas'];
+  const memberTabs=['tabt-member'];
+  if(!currentUser){
+    el.innerHTML=`${connDot}${themeBtn}<button class="btn btn-blue btn-sm" onclick="openModal('modal-login')">🔐 Login</button>`;
+    [...adminTabs,...memberTabs,'tabt-publik'].forEach(id=>{const t=document.getElementById(id);if(t)t.style.display='none';});
+  } else if(currentUser.role==='admin'){
+    el.innerHTML=`${connDot}${themeBtn}<button class="btn btn-gray btn-icon" onclick="openSettings()">⚙️</button><button class="btn btn-gray btn-sm" onclick="doLogout()">🚪 Keluar</button>`;
+    adminTabs.forEach(id=>{const t=document.getElementById(id);if(t)t.style.display='';});
+    memberTabs.forEach(id=>{const t=document.getElementById(id);if(t)t.style.display='none';});
+    const tp=document.getElementById('tabt-publik');if(tp)tp.style.display='';
+  } else {
+    const m=state.members.find(x=>x.id===currentUser.id);
+    el.innerHTML=`${connDot}${themeBtn}<span style="font-size:.66rem;font-weight:800;color:#00a050;">👤 ${m?m.name.split(' ')[0]:''}</span><button class="btn btn-gray btn-xs" onclick="doLogout()">🚪</button>`;
+    memberTabs.forEach(id=>{const t=document.getElementById(id);if(t)t.style.display='';});
+    adminTabs.forEach(id=>{const t=document.getElementById(id);if(t)t.style.display='none';});
+    const tp=document.getElementById('tabt-publik');if(tp)tp.style.display='';
+  }
+  // reapply conn status
+  setConnStatus(navigator.onLine);
+}
+window.addEventListener('online',  ()=>setConnStatus(true));
+window.addEventListener('offline', ()=>setConnStatus(false));
+
+// ══════════════════════════════
+//  SETTINGS OPEN
+// ══════════════════════════════
+window.openSettings = ()=>{
+  const s=state.settings;
+  document.getElementById('cfg-clubname').value=s.club.name;
+  document.getElementById('cfg-tagline').value=s.club.tagline;
+  document.getElementById('cfg-day').value=s.schedule.day;
+  document.getElementById('cfg-time').value=s.schedule.time;
+  document.getElementById('cfg-venue').value=s.schedule.venue;
+  document.getElementById('cfg-courts').value=s.schedule.courts;
+  renderInfoBox(); renderAdminContact();
+  openModal('modal-settings');
+};
+
+// ══════════════════════════════
+//  PAGES
+// ══════════════════════════════
+window.showPage = id=>{
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const t=document.getElementById('tabt-'+id);if(t)t.classList.add('active');
+  document.getElementById('page-area').scrollTop=0;
+  if(id==='publik')  renderPublic();
+  if(id==='kas')     renderKasPage();
+  if(id==='anggota') renderAnggota();
+  if(id==='member')  renderMemberPage();
+};
+
+// ══════════════════════════════
+//  PUBLIC RENDER
+// ══════════════════════════════
+function renderPublic(){
+  const members = state.members;
+  const hadir=members.filter(m=>m.presence==='hadir');
+  const absen=members.filter(m=>m.presence==='absen');
+  const belum=members.filter(m=>m.presence==='belum');
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('cnt-hadir',hadir.length);
+  set('cnt-absen',absen.length);
+  set('cnt-belum',belum.length);
+  const chips=(arr,type)=>{
+    if(!arr.length)return`<span style="color:var(--td);font-size:.62rem;">—</span>`;
+    return arr.map(m=>{
+      const dc=type==='hadir'?'dot-green':type==='absen'?'dot-red':'dot-gray';
+      const rs=(type==='absen'&&m.reason)?`<span class="chip-reason">(${m.reason})</span>`:'';
+      return`<div class="member-chip"><span class="chip-dot ${dc}"></span>${m.name}${rs}</div>`;
+    }).join('');
+  };
+  const lh=document.getElementById('list-hadir');if(lh)lh.innerHTML=chips(hadir,'hadir');
+  const la=document.getElementById('list-absen');if(la)la.innerHTML=chips(absen,'absen');
+  const lb=document.getElementById('list-belum');if(lb)lb.innerHTML=chips(belum,'belum');
+  const kas=state.kas;
+  set('pub-saldo',fmt(kas.saldo));
+  set('pub-in',   fmt(kas.totalIn));
+  set('pub-out',  fmt(kas.totalOut));
+  const iml=document.getElementById('iuran-mini-list');
+  if(iml) iml.innerHTML=members.map(m=>`
+    <div class="iuran-mini-item">
+      <span class="im-dot" style="background:${m.lunas?'#00a050':'#c08000'};"></span>
+      <span>${m.name}</span>
+      <span style="margin-left:auto;font-size:.6rem;color:${m.lunas?'#00a050':'#c08000'};">${m.lunas?'✅':'⚠️'}</span>
+    </div>`).join('');
+  updateTicker();
+}
+
+// ══════════════════════════════
+//  LOGIN
+// ══════════════════════════════
+function populateLogin(){
+  const sel=document.getElementById('login-name');if(!sel)return;
+  sel.innerHTML='<option value="">— Pilih nama kamu —</option><option value="admin">⚙️ Admin Panel</option>';
+  state.members.forEach(m=>sel.innerHTML+=`<option value="${m.id}">${m.name}</option>`);
+}
+window.doLogin = ()=>{
+  const nv=document.getElementById('login-name').value;
+  const pv=document.getElementById('login-pass').value;
+  if(!nv){toast('Pilih nama!','#e04060');return;}
+  if(!pv){toast('Masukkan password!','#e04060');return;}
+  if(nv==='admin'){
+    if(hash(pv)===hash('admin123')){
+      currentUser={id:'admin',name:'Admin',role:'admin'};
+      closeModal('modal-login');
+      document.getElementById('login-pass').value='';
+      renderHeader(); showPage('publik'); toast('✅ Login Admin berhasil!');
+    } else toast('❌ Password admin salah!','#e04060');
+    return;
+  }
+  const m=state.members.find(x=>x.id===nv);
+  if(m&&hash(pv)===m.password){
+    currentUser={id:m.id,name:m.name,role:'member'};
+    closeModal('modal-login');
+    document.getElementById('login-pass').value='';
+    renderHeader(); showPage('member'); toast(`✅ Halo, ${m.name.split(' ')[0]}!`);
+  } else toast('❌ Password salah!','#e04060');
+};
+window.doLogout = ()=>{currentUser=null;renderHeader();showPage('publik');toast('👋 Logout berhasil!');};
+
+// ══════════════════════════════
+//  MEMBER PAGE
+// ══════════════════════════════
+function renderMemberPage(){
+  if(!currentUser||currentUser.role==='admin')return;
+  const m=state.members.find(x=>x.id===currentUser.id);if(!m)return;
+  const nd=document.getElementById('member-name-d');if(nd)nd.textContent=m.name;
+  const sm={hadir:'<span class="status-pill pill-hadir">✅ HADIR</span>',absen:'<span class="status-pill pill-absen">❌ TIDAK HADIR</span>',belum:'<span class="status-pill pill-belum">❓ BELUM ABSENSI</span>'};
+  const sd=document.getElementById('member-status-d');if(sd)sd.innerHTML=sm[m.presence]||'';
+}
+window.openAbsenModal = ()=>{openModal('modal-absen');document.getElementById('absen-reason').value='';};
+window.setPresence = async type=>{
+  if(!currentUser||currentUser.role==='admin'){toast('Login dulu!','#e04060');return;}
+  const m=state.members.find(x=>x.id===currentUser.id);if(!m)return;
+  const reason = type==='absen'?document.getElementById('absen-reason').value.trim():'';
+  if(type==='absen')closeModal('modal-absen');
+  await updateDoc(doc(db,'members',m.id),{presence:type,reason});
+  toast(type==='hadir'?'✅ Status HADIR disimpan!':'❌ Status ABSEN disimpan!');
+};
+window.changePassword = async ()=>{
+  const np=document.getElementById('new-pass').value;
+  const cp=document.getElementById('confirm-pass').value;
+  if(np.length<6){toast('Min. 6 karakter!','#e04060');return;}
+  if(np!==cp){toast('Password tidak cocok!','#e04060');return;}
+  const m=state.members.find(x=>x.id===currentUser.id);if(!m)return;
+  await updateDoc(doc(db,'members',m.id),{password:hash(np)});
+  document.getElementById('new-pass').value='';
+  document.getElementById('confirm-pass').value='';
+  toast('🔐 Password diubah & disimpan ke Firebase!');
+};
+
+// ══════════════════════════════
+//  ANGGOTA (Admin)
+// ══════════════════════════════
+function renderAnggota(){
+  const tb=document.getElementById('ang-tbody');if(!tb)return;
+  tb.innerHTML=state.members.map(m=>{
+    const pp={hadir:'<span class="status-pill pill-hadir">✅</span>',absen:'<span class="status-pill pill-absen">❌</span>',belum:'<span class="status-pill pill-belum">❓</span>'}[m.presence]||'';
+    const lp=m.lunas?'<span class="status-pill pill-lunas">✅</span>':'<span class="status-pill pill-blm">⚠️</span>';
+    const waTxt=encodeURIComponent(buildWAMsg(m));
+    return`<tr>
+      <td style="font-weight:800">${m.name}</td>
+      <td>${pp}</td>
+      <td>${lp}<button class="btn btn-xs ${m.lunas?'btn-red':'btn-green'}" style="margin-left:3px;" onclick="toggleLunas('${m.id}','ang')">${m.lunas?'↩':'✅'}</button></td>
+      <td><a href="https://wa.me/${m.wa}?text=${waTxt}" target="_blank" class="btn btn-wa btn-xs">💬</a></td>
+      <td><button class="btn btn-blue btn-xs" onclick="openEdit('${m.id}')">✏️</button> <button class="btn btn-red btn-xs" style="margin-left:2px;" onclick="askDelete('${m.id}')">🗑️</button></td>
+    </tr>`;
+  }).join('');
+}
+window.openEdit = id=>{
+  const m=state.members.find(x=>x.id===id);if(!m)return;
+  document.getElementById('edit-id').value=id;
+  document.getElementById('edit-name').value=m.name;
+  document.getElementById('edit-wa').value=m.wa;
+  document.getElementById('edit-reset-pw').checked=false;
+  openModal('modal-edit');
+};
+window.saveEdit = async ()=>{
+  const id=document.getElementById('edit-id').value;
+  const m=state.members.find(x=>x.id===id);if(!m)return;
+  const nn=document.getElementById('edit-name').value.trim();
+  if(!nn){toast('Nama kosong!','#e04060');return;}
+  const nw=document.getElementById('edit-wa').value.trim()||m.wa;
+  const upd={name:nn,wa:nw};
+  if(document.getElementById('edit-reset-pw').checked) upd.password=hash('123456');
+  await updateDoc(doc(db,'members',id),upd);
+  closeModal('modal-edit');
+  toast(`✅ Data ${nn} diperbarui!`);
+};
+window.addMember = async ()=>{
+  const name=document.getElementById('nm-name').value.trim();
+  const wa=document.getElementById('nm-wa').value.trim();
+  if(!name){toast('Nama kosong!','#e04060');return;}
+  await addDoc(collection(db,'members'),{name,wa:wa||'62800000000',password:hash('123456'),presence:'belum',reason:'',lunas:false});
+  document.getElementById('nm-name').value='';document.getElementById('nm-wa').value='';
+  toast(`✅ ${name} ditambahkan!`);
+};
+window.askDelete = id=>{
+  document.getElementById('del-target-id').value=id;
+  document.getElementById('delpass-input').value='';
+  openModal('modal-delpass');
+};
+window.confirmDelete = async ()=>{
+  const pw=document.getElementById('delpass-input').value;
+  if(hash(pw)!==hash('admin123')){toast('❌ Password admin salah!','#e04060');return;}
+  const id=document.getElementById('del-target-id').value;
+  const m=state.members.find(x=>x.id===id);
+  await deleteDoc(doc(db,'members',id));
+  closeModal('modal-delpass');
+  toast(`🗑️ ${m?m.name:'Anggota'} dihapus`);
+};
+window.toggleLunas = async (id,from)=>{
+  const m=state.members.find(x=>x.id===id);if(!m)return;
+  await updateDoc(doc(db,'members',id),{lunas:!m.lunas});
+  toast((!m.lunas)?`✅ ${m.name} lunas!`:`↩ Lunas ${m.name} dibatalkan`);
+};
+window.resetPresence = async ()=>{
+  if(!confirm('Reset semua presensi minggu ini?'))return;
+  const batch=writeBatch(db);
+  state.members.forEach(m=>batch.update(doc(db,'members',m.id),{presence:'belum',reason:''}));
+  await batch.commit();
+  toast('🔄 Presensi direset!');
+};
+
+// ══════════════════════════════
+//  KAS (Admin)
+// ══════════════════════════════
+function renderKasPage(){
+  const kas=state.kas;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('k-saldo',fmt(kas.saldo));
+  set('k-in',   fmt(kas.totalIn));
+  set('k-out',  fmt(kas.totalOut));
+  const tb=document.getElementById('iuran-tbody');
+  if(tb) tb.innerHTML=state.members.map(m=>{
+    const pp={hadir:'<span class="status-pill pill-hadir">✅</span>',absen:'<span class="status-pill pill-absen">❌</span>',belum:'<span class="status-pill pill-belum">❓</span>'}[m.presence]||'';
+    const lp=m.lunas?'<span class="status-pill pill-lunas">✅ Lunas</span>':'<span class="status-pill pill-blm">⚠️ Belum</span>';
+    const waTxt=encodeURIComponent(buildWAMsg(m));
+    return`<tr>
+      <td style="font-weight:800">${m.name}</td>
+      <td>${lp}<button class="btn btn-xs ${m.lunas?'btn-red':'btn-green'}" style="margin-left:3px;" onclick="toggleLunas('${m.id}','kas')">${m.lunas?'↩':'✅'}</button></td>
+      <td>${pp}</td>
+      <td><a href="https://wa.me/${m.wa}?text=${waTxt}" target="_blank" class="btn btn-wa btn-xs">💬</a></td>
+    </tr>`;
+  }).join('');
+  const lw=document.getElementById('kas-log-wrap');
+  if(lw) lw.innerHTML=state.kasLog.map(l=>`
+    <div class="kas-log-item ${l.type==='in'?'log-in':'log-out'}">
+      <span class="lico">${l.type==='in'?'📥':'📤'}</span>
+      <span class="ldesc">${l.desc}</span>
+      <span style="text-align:right;flex-shrink:0;">
+        <div class="lamt">${l.type==='in'?'+':'-'} ${fmt(l.amount)}</div>
+        <div class="ldate">${l.date||''}</div>
+      </span>
+      <button class="btn btn-xs btn-red" onclick="deleteKas('${l.id}')">🗑️</button>
+    </div>`).join('');
+}
+window.addKas = async ()=>{
+  const type=document.getElementById('kas-type').value;
+  const amount=parseInt(document.getElementById('kas-amount').value)||0;
+  const desc=document.getElementById('kas-desc').value.trim();
+  if(!amount||amount<=0){toast('Nominal tidak valid!','#e04060');return;}
+  if(!desc){toast('Isi keterangan!','#e04060');return;}
+  const today=new Date().toISOString().slice(0,10);
+  // Add to kasLog
+  await addDoc(collection(db,'kasLog'),{type,desc,amount,date:today,ts:serverTimestamp()});
+  // Update kas summary
+  const newSaldo = type==='in' ? state.kas.saldo+amount : state.kas.saldo-amount;
+  const newIn    = type==='in' ? state.kas.totalIn+amount : state.kas.totalIn;
+  const newOut   = type==='out'? state.kas.totalOut+amount : state.kas.totalOut;
+  await setDoc(doc(db,'kas','summary'),{saldo:newSaldo,totalIn:newIn,totalOut:newOut});
+  document.getElementById('kas-amount').value='';
+  document.getElementById('kas-desc').value='';
+  toast('💰 Transaksi dicatat ke Firebase!');
+};
+window.deleteKas = async id=>{
+  if(!confirm('Hapus transaksi ini?'))return;
+  const item=state.kasLog.find(l=>l.id===id);if(!item)return;
+  const newSaldo = item.type==='in' ? state.kas.saldo-item.amount : state.kas.saldo+item.amount;
+  const newIn    = item.type==='in' ? state.kas.totalIn-item.amount : state.kas.totalIn;
+  const newOut   = item.type==='out'? state.kas.totalOut-item.amount : state.kas.totalOut;
+  await deleteDoc(doc(db,'kasLog',id));
+  await setDoc(doc(db,'kas','summary'),{saldo:newSaldo,totalIn:newIn,totalOut:newOut});
+  toast('🗑️ Transaksi dihapus');
+};
+
+// ══════════════════════════════
+//  SETTINGS — CLUB & SCHEDULE
+// ══════════════════════════════
+window.saveClubInfo = async ()=>{
+  const name=document.getElementById('cfg-clubname').value.trim()||state.settings.club.name;
+  const tagline=document.getElementById('cfg-tagline').value.trim()||state.settings.club.tagline;
+  await saveSettingsField('club',{name,tagline});
+  document.getElementById('club-name-h').textContent=name;
+  document.getElementById('club-tag-p').textContent=tagline;
+  toast('💾 Info klub disimpan!');
+};
+window.saveSchedule = async ()=>{
+  const sc={
+    day:document.getElementById('cfg-day').value.trim()||state.settings.schedule.day,
+    time:document.getElementById('cfg-time').value.trim()||state.settings.schedule.time,
+    venue:document.getElementById('cfg-venue').value.trim()||state.settings.schedule.venue,
+    courts:document.getElementById('cfg-courts').value.trim()||state.settings.schedule.courts,
+  };
+  await saveSettingsField('schedule',sc);
+  toast('📅 Jadwal disimpan!');
+};
+
+// ══════════════════════════════
+//  WA MESSAGES
+// ══════════════════════════════
+function buildWAMsg(m){
+  const firstName=m.name.split(' ')[0];
+  if(m.presence==='belum') return`Halo ${firstName} 👋\nMabar minggu ini mau mulai nih! 🏸\nYuk segera konfirmasi kehadiran kamu ya.\nDitunggu! 😊`;
+  if(m.presence==='absen') return`Halo ${firstName} 👋\nSayang banget minggu ini tidak bisa ikut mabar 😢\nSemoga sehat selalu! 💪 Minggu depan hadir lagi ya 🏸`;
+  if(!m.lunas)             return`Halo ${firstName} 👋\nDiingatkan untuk iuran bulan ini ya 😊\nBisa diselesaikan ke Admin kapanpun. Terima kasih! 🙏`;
+  return `Halo ${firstName}! 👋\nTerima kasih sudah hadir di mabar minggu ini 🏸✨`;
+}
+window.sendWAAbsensi = ()=>{
+  const members=state.members;
+  const hadir=members.filter(m=>m.presence==='hadir');
+  const absen=members.filter(m=>m.presence==='absen');
+  const belum=members.filter(m=>m.presence==='belum');
+  const today=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const msg=`🏸 *REKAP ABSENSI MABAR*\n🏒 *${state.settings.club.name}*\n📅 ${today}\n━━━━━━━━━━━━━━━━━━\n✅ *HADIR (${hadir.length} orang):*\n${hadir.map((m,i)=>`  ${i+1}. ${m.name}`).join('\n')||'  (belum ada)'}\n\n❌ *TIDAK HADIR (${absen.length} orang):*\n${absen.map((m,i)=>`  ${i+1}. ${m.name}${m.reason?' — '+m.reason:''}`).join('\n')||'  (belum ada)'}\n\n❓ *BELUM ABSENSI (${belum.length} orang):*\n${belum.map((m,i)=>`  ${i+1}. ${m.name}`).join('\n')||'  (semua sudah konfirmasi)'}\n━━━━━━━━━━━━━━━━━━\n📊 Total: ${members.length} orang\n💰 Saldo Kas: *${fmt(state.kas.saldo)}*\n\n_©2026 SRISP | Vena-X Badminton v1.4_ 🏸`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+};
+window.sendWAIuran = ()=>{
+  const members=state.members;
+  const lunas=members.filter(m=>m.lunas);
+  const blm=members.filter(m=>!m.lunas);
+  const today=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const kas=state.kas;
+  const msg=`💰 *LAPORAN IURAN KAS*\n🏒 *${state.settings.club.name}*\n📅 ${today}\n━━━━━━━━━━━━━━━━━━\n✅ *SUDAH LUNAS (${lunas.length} orang):*\n${lunas.map((m,i)=>`  ${i+1}. ${m.name}`).join('\n')||'  (belum ada)'}\n\n⚠️ *BELUM BAYAR (${blm.length} orang):*\n${blm.map((m,i)=>`  ${i+1}. ${m.name}`).join('\n')||'  (semua lunas)'}\n━━━━━━━━━━━━━━━━━━\n📥 Masuk  : *${fmt(kas.totalIn)}*\n📤 Keluar : *${fmt(kas.totalOut)}*\n💰 *Saldo  : ${fmt(kas.saldo)}*\n\n_©2026 SRISP | Vena-X Badminton v1.4_ 🏸`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+};
+
+// ══════════════════════════════
+//  MODAL & TOAST
+// ══════════════════════════════
+window.openModal  = id=>document.getElementById(id).classList.add('show');
+window.closeModal = id=>document.getElementById(id).classList.remove('show');
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('show');});
+});
+let toastT;
+window.toast = (msg,color='')=>{
+  const el=document.getElementById('toast');if(!el)return;
+  el.textContent=msg;
+  el.style.background=color||'linear-gradient(135deg,#00e676,#00bfa5)';
+  el.style.color=color?'#fff':'#002b14';
+  el.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>el.classList.remove('show'),2600);
+};
+function toast(msg,color=''){window.toast(msg,color);}
+
+</script>
+</body>
+</html>
